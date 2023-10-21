@@ -1,0 +1,2 @@
+class SwetestException(Exception):
+    pass
