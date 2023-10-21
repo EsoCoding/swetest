@@ -1,6 +1,7 @@
 import subprocess
 import os
 import argparse
+import SwetestException
 
 class Swetest:
     def __init__(self, path=None):
@@ -76,21 +77,3 @@ class Swetest:
 
     def get_last_query(self):
         return self.last_query
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Swetest Python Wrapper")
-    parser.add_argument("-q", "--query", help="Query string for swetest", required=True)
-    parser.add_argument("-p", "--path", help="Path to swetest binary", default=None)
-    args = parser.parse_args()
-
-    try:
-        swetest = Swetest(path=args.path)
-        if args.query.lower() == "--help":
-            swetest.set_query("-h")
-        else:
-            swetest.set_query(args.query)
-        swetest.execute()
-        response = swetest.response()
-        print(response['output'])
-    except SwetestException as e:
-        print(f"Error: {e}")
