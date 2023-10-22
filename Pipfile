@@ -8,8 +8,8 @@ pytest = "*"
 python-dotenv = "*"
 prettytable = "*"
 understate = "*"
-swetest = {file = ".", editable = true}
 build = "*"
+swetest = {file = ".", editable = true}
 
 [dev-packages]
 swetest = {file = ".", editable = true}

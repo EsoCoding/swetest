@@ -1,6 +1,9 @@
 import subprocess
 import os
-import argparse
+import string
+from typing import List, Dict
+import string
+from pathlib import Path
 
 
 class Swetest:
@@ -15,8 +18,13 @@ class Swetest:
             None
         """
         self.path = (
-            path if path else os.path.join(os.environ.get("SWETEST_PATH", "ephemeris/"))
+            path
+            if path
+            else os.path.join(
+                Path(__file__).resolve().parent.parent, "ephemeris/"
+            )
         )
+        self.parsed_rows = None
         self.query_string = None
         self.output = []
         self.status = None
@@ -26,40 +34,78 @@ class Swetest:
         self.set_path(self.path)
 
     def set_query(self, query):
-        """
-        Set the query for the API client.
+        if isinstance(query, List):
+            query = self.compile(query, List)
+        elif isinstance(query, Dict):
+            query = self.compile(query, Dict)
+        elif isinstance(query, str):
+            query = self.compile(query, str)
 
-        Args:
-            query (str or list): The query to set. If it's a list, it will be compiled.
+        self.query_string = (
+            f"{self.get_path()}swetest -edir{self.get_path()} {query}"
+        )
 
-        Returns:
-            self: The API client instance.
-
-        """
-        if isinstance(query, list):
-            query = self.compile(query)
-
-        self.query_string = f"{self.get_path()}swetest -edir{self.get_path()} {query}"
+        print(f"Executing query: {self.query_string}")
 
         return self
 
-    def compile(self, arr):
+    def parse_output(self):
         """
-        Compiles the query dict into a string of options.
-
-        Args:
-            arr (list): The array to be compiled.
+        Parse the output of the function.
 
         Returns:
-            str: The compiled string of options.
+            The parsed output of the function.
+
+        Raises:
+            SwetestException: If `execute()` has not been called before calling this method.
         """
+        if not self.has_output:
+            raise Exception("Need `execute()` before call this method!")
+        # Split by lines
+        lines = self.output.strip().split("\n")
+
+        # For each line, split by any sequence of whitespace
+        self.parsed_rows = [line.split() for line in lines]
+        return self.parsed_rows
+
+    def compile(self, query, type=None):
         options = []
-        for key, value in enumerate(arr):
-            if isinstance(key, int):
-                options.append(f"-{value}")
-            else:
-                options.append(f"-{key}{value}")
+        if isinstance(query, Dict):
+            for key, value in query.items():
+                if value is True:
+                    print(key)  # for boolean True, just append the key
+                    options.append(key)
+                else:
+                    options.append(f"{key}{value}")
+        elif isinstance(query, List):
+            for item in query:
+                options.append(f"{item}")
+        elif isinstance(query, str):
+            options.append(query)
+        else:
+            raise ValueError(
+                "Query should be either a string, list or a dictionary."
+            )
         return " ".join(options)
+
+    def get_output_column(self, col_index):
+        """
+        Get a specific column from the parsed output.
+
+        Args:
+            col_index (int): The index of the column to fetch.
+
+        Returns:
+            list: The specified column from the parsed output.
+
+        Raises:
+            SwetestException: If `parse_output()` has not been called before calling this method.
+        """
+        if self.parsed_rows is None:
+            raise Exception("Need `parse_output()` before call this method!")
+        return [
+            row[col_index] for row in self.parsed_rows if len(row) > col_index
+        ]
 
     def get_path(self):
         """
@@ -83,10 +129,12 @@ class Swetest:
         Raises:
             SwetestException: If the path is invalid.
         """
-        if os.path.isfile(f"{path}swetest"):
-            self.path = path
-        else:
-            raise Exception("Invalid path!")
+        try:
+            if os.path.isdir(path) and os.path.isfile(f"{path}swetest"):
+                self.path = path
+        except ValueError as e:
+            raise ValueError(f"Invalid path {e}!")
+
         return self
 
     def execute(self):
@@ -101,11 +149,14 @@ class Swetest:
         """
         if self.query_string is None:
             raise Exception("No query!")
-        self.status, self.output = subprocess.getstatusoutput(self.query_string)
+        self.status, self.output = subprocess.getstatusoutput(
+            self.query_string
+        )
         if self.mask_path:
             self.mask_path_in_string()
         self.has_output = True
         self.last_query = self.query_string
+        self.parse_output()
         return self
 
     def mask_path_in_string(self):
@@ -155,6 +206,22 @@ class Swetest:
         if not self.has_output:
             raise Exception("Need `execute()` before call this method!")
         return self.status
+
+    def get_output_table(self):
+        table = PrettyTable()
+
+        # Assuming that there are 3 columns, you can add more if needed
+        table.field_names = ["Direct", "Dict", "List"]
+
+        # Fetching columns data
+        col1 = self.get_output_column(0)
+        col2 = self.get_output_column(1)
+        col3 = self.get_output_column(2)
+
+        for i in range(len(col1)):
+            table.add_row([col1[i], col2[i], col3[i]])
+
+        return table
 
     def get_output(self):
         """

@@ -1,5 +1,5 @@
 import unittest
-from swetest.modules.swetest import Swetest
+from swetest.swetest import Swetest
 
 
 class TestUtils(unittest.TestCase):
