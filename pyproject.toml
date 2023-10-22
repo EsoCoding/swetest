@@ -1,0 +1,29 @@
+[project]
+name = "Swetest"
+version = "0.1.0"
+authors = [
+  { name="Gert-jan Poortman", email="arjanpoortman@gmail.com" },
+]
+description = "A python wrapper for swetest, a swissephemeris tool that calculates with high precision Astrological planetary positions."
+
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/EsoCoding/swetest"
+"Bug Tracker" = "https://github.com/EsoCoding/swetest/issues"
+
+# FILEPATH: /home/esocode/Projects/swetest/pyproject.toml
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 79
+target-version = ['py38', 'py39']

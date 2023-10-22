@@ -5,10 +5,14 @@ name = "pypi"
 
 [packages]
 pytest = "*"
+python-dotenv = "*"
+prettytable = "*"
+understate = "*"
 swetest = {file = ".", editable = true}
+build = "*"
 
 [dev-packages]
 swetest = {file = ".", editable = true}
 
 [requires]
-python_version = "3.11"
+python_version = "3.9"
