@@ -57,9 +57,9 @@ def print_table_two(query_string: str, query_dict: dict, query_list: list):
 
     swetest.set_query(query_dict).execute()
     # Fetching columns data
-    col1 = get_output_column(0)
-    col2 = get_output_column(1)
-    col3 = get_output_column(2)
+    col1 = swetest.get_output_column(3)
+    col2 = swetest.get_output_column(3)
+    col3 = swetest.get_output_column(3)
 
     # Adjusting column widths
     max_width_col1 = max(len(item) for item in col1)
@@ -77,9 +77,8 @@ def print_table_two(query_string: str, query_dict: dict, query_list: list):
     for i in range(len(col1)):
         table.add_row([col1[i], col2[i], col3[i]])
 
+    print(table),  # moved outside of the for loop
     return table
-
-    print(table),
 
 
 if __name__ == "__main__":
