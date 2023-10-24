@@ -49,25 +49,6 @@ class Swetest:
 
         return self
 
-    def parse_output(self):
-        """
-        Parse the output of the function.
-
-        Returns:
-            The parsed output of the function.
-
-        Raises:
-            SwetestException: If `execute()` has not been called before calling this method.
-        """
-        if not self.has_output:
-            raise Exception("Need `execute()` before call this method!")
-        # Split by lines
-        lines = self.output.strip().split("\n")
-
-        # For each line, split by any sequence of whitespace
-        self.parsed_rows = [line.split() for line in lines]
-        return self.parsed_rows
-
     def compile(self, query, type=None):
         options = []
         if isinstance(query, Dict):
@@ -87,25 +68,6 @@ class Swetest:
                 "Query should be either a string, list or a dictionary."
             )
         return " ".join(options)
-
-    def get_output_column(self, col_index):
-        """
-        Get a specific column from the parsed output.
-
-        Args:
-            col_index (int): The index of the column to fetch.
-
-        Returns:
-            list: The specified column from the parsed output.
-
-        Raises:
-            SwetestException: If `parse_output()` has not been called before calling this method.
-        """
-        if self.parsed_rows is None:
-            raise Exception("Need `parse_output()` before call this method!")
-        return [
-            row[col_index] for row in self.parsed_rows if len(row) > col_index
-        ]
 
     def get_path(self):
         """
@@ -206,22 +168,6 @@ class Swetest:
         if not self.has_output:
             raise Exception("Need `execute()` before call this method!")
         return self.status
-
-    def get_output_table(self):
-        table = PrettyTable()
-
-        # Assuming that there are 3 columns, you can add more if needed
-        table.field_names = ["Direct", "Dict", "List"]
-
-        # Fetching columns data
-        col1 = self.get_output_column(0)
-        col2 = self.get_output_column(1)
-        col3 = self.get_output_column(2)
-
-        for i in range(len(col1)):
-            table.add_row([col1[i], col2[i], col3[i]])
-
-        return table
 
     def get_output(self):
         """

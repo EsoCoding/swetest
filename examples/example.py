@@ -28,9 +28,6 @@ def print_table(query_string: str, query_dict: dict, query_list: list):
 
     swetest = Swetest()
     # init pretty table
-    table = PrettyTable()
-    table.field_names = ["direct", "list", "dict"]
-
     swetest.set_query(query_string).execute()
     column1 = swetest.get_output()
     swetest.set_query(query_list).execute()
@@ -38,47 +35,23 @@ def print_table(query_string: str, query_dict: dict, query_list: list):
     swetest.set_query(query_dict).execute()
     column3 = swetest.get_output()
 
-    table.add_row(
-        [column1, column2, column3],
-    )
-
-    print(table),
+    print(f"{column1}\n{column2}\n{column3}"),
 
 
 def print_table_two(query_string: str, query_dict: dict, query_list: list):
     swetest = Swetest()
     # init pretty table
-    table = PrettyTable()
-    table.field_names = ["direct", "list", "dict"]
-
     swetest.set_query(query_string).execute()
-
+    col1 = swetest.get_output_column(2)
     swetest.set_query(query_list).execute()
-
-    swetest.set_query(query_dict).execute()
-    # Fetching columns data
-    col1 = swetest.get_output_column(3)
     col2 = swetest.get_output_column(3)
-    col3 = swetest.get_output_column(3)
+    swetest.set_query(query_dict).execute()
+    col3 = swetest.get_output_column(1)
 
-    # Adjusting column widths
-    max_width_col1 = max(len(item) for item in col1)
-    max_width_col2 = max(len(item) for item in col2)
-    max_width_col3 = max(len(item) for item in col3)
+    print(f"{col1}\n{col2}\n{col3}"),
 
-    table.align["Direct"] = "l"
-    table.align["Dict"] = "l"
-    table.align["List"] = "l"
 
-    table.max_width["Direct"] = max_width_col1
-    table.max_width["Dict"] = max_width_col2
-    table.max_width["List"] = max_width_col3
-
-    for i in range(len(col1)):
-        table.add_row([col1[i], col2[i], col3[i]])
-
-    print(table),  # moved outside of the for loop
-    return table
+# moved outside of the for loop
 
 
 if __name__ == "__main__":
